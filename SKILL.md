@@ -9,7 +9,7 @@ Autonomous paper review: fetch → summarize → find repo → read code → map
 
 ## Config
 
-- **Notion Papers DB**: `304ff1d4-6617-81ba-8f86-d470e3c74580`
+- **Notion Papers DB**: `9fbd2ab4-7758-82c6-a20c-010f6d654c55`
 - **Repos directory**: `repos/` (workspace-relative)
 - **Notion API key**: `~/.config/notion/api_key` or `NOTION_API_KEY` env
 
@@ -138,7 +138,7 @@ Write blocks array to `/tmp/paper_blocks.json`.
 
 ```bash
 python3 scripts/notion_export.py \
-    --db 304ff1d4-6617-81ba-8f86-d470e3c74580 \
+    --db 9fbd2ab4-7758-82c6-a20c-010f6d654c55 \
     --properties /tmp/paper_props.json \
     --blocks /tmp/paper_blocks.json
 ```
@@ -146,7 +146,7 @@ python3 scripts/notion_export.py \
 To update an existing page:
 ```bash
 python3 scripts/notion_export.py \
-    --db 304ff1d4-6617-81ba-8f86-d470e3c74580 \
+    --db 9fbd2ab4-7758-82c6-a20c-010f6d654c55 \
     --properties /tmp/paper_props.json \
     --blocks /tmp/paper_blocks.json \
     --update <page_id>
