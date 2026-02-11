@@ -152,7 +152,7 @@ python3 scripts/notion_export.py \
 
 ## Tags (use from this set, or add new ones)
 
-RL, LLM, Agents, Safety, Training, Inference, Architecture, Alignment, Reasoning, Vision, Multimodal, Diffusion, Efficiency, Data, Evaluation
+RL, LLM, Agents, Safety, Training, Inference, Architecture, Alignment, Reasoning, Vision, Multimodal, Diffusion, Efficiency, Data, Evaluation, Memory
 
 ## Critical Rules
 
