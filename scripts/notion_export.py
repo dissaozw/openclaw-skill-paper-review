@@ -88,6 +88,7 @@ def find_or_create_papers_db() -> str:
                 {"name": "To Read"}, {"name": "Reading"}, {"name": "Summarized"}
             ]}},
             "URL": {"url": {}},
+            "GitHub": {"url": {}},
             "Summary": {"rich_text": {}}
         }
     }).encode()
@@ -124,6 +125,8 @@ def create_page(db_id: str, properties: dict, blocks: list) -> dict:
         notion_props["Status"] = {"select": {"name": properties["Status"]}}
     if "URL" in properties:
         notion_props["URL"] = {"url": properties["URL"]}
+    if "GitHub" in properties:
+        notion_props["GitHub"] = {"url": properties["GitHub"]}
     if "Summary" in properties:
         # Truncate to 2000 chars (Notion rich_text limit)
         summary = properties["Summary"][:2000]

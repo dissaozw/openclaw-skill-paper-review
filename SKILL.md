@@ -131,7 +131,7 @@ If no repo was found, skip sections 2-5 and use:
 
 Write properties to `/tmp/paper_props.json`:
 ```json
-{"Name": "...", "Authors": "...", "Year": 2025, "Tags": ["RL"], "Status": "Summarized", "URL": "...", "Summary": "one-line TL;DR"}
+{"Name": "...", "Authors": "...", "Year": 2025, "Tags": ["RL"], "Status": "Summarized", "URL": "...", "GitHub": "https://github.com/...", "Summary": "one-line TL;DR"}
 ```
 
 Write blocks array to `/tmp/paper_blocks.json`.
