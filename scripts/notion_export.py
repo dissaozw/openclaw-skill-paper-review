@@ -26,14 +26,16 @@ def get_api_key() -> str:
     raise RuntimeError("No Notion API key found")
 
 
-def find_papers_db() -> str:
-    """Find the Papers database by searching Notion."""
+def find_or_create_papers_db() -> str:
+    """Find the Papers database by searching Notion. Create it if not found."""
     key = get_api_key()
     headers = {
         "Authorization": "Bearer " + key,
         "Notion-Version": "2022-06-28",
         "Content-Type": "application/json",
     }
+    
+    # Search for existing
     payload = json.dumps({
         "filter": {"property": "object", "value": "database"},
         "query": "Papers"
@@ -48,7 +50,55 @@ def find_papers_db() -> str:
         title = "".join(t["plain_text"] for t in db.get("title", []))
         if title.strip().lower() == "papers":
             return db["id"]
-    raise RuntimeError("No 'Papers' database found in Notion workspace")
+    
+    # Not found — find a top-level page to use as parent
+    payload = json.dumps({
+        "filter": {"property": "object", "value": "page"},
+        "page_size": 10
+    }).encode()
+    req = urllib.request.Request(
+        "https://api.notion.com/v1/search",
+        data=payload, headers=headers, method="POST"
+    )
+    resp = urllib.request.urlopen(req)
+    pages = json.loads(resp.read()).get("results", [])
+    
+    if not pages:
+        raise RuntimeError("No pages found in Notion workspace to create Papers database under")
+    
+    # Use first available page as parent
+    parent_id = pages[0]["id"]
+    
+    # Create Papers database
+    db_payload = json.dumps({
+        "parent": {"page_id": parent_id},
+        "title": [{"type": "text", "text": {"content": "Papers"}}],
+        "properties": {
+            "Name": {"title": {}},
+            "Authors": {"rich_text": {}},
+            "Year": {"number": {}},
+            "Tags": {"multi_select": {"options": [
+                {"name": "RL"}, {"name": "LLM"}, {"name": "Agents"},
+                {"name": "Safety"}, {"name": "Training"}, {"name": "Inference"},
+                {"name": "Architecture"}, {"name": "Alignment"}, {"name": "Reasoning"},
+                {"name": "Vision"}, {"name": "Multimodal"}, {"name": "Efficiency"},
+                {"name": "Data"}, {"name": "Evaluation"}
+            ]}},
+            "Status": {"select": {"options": [
+                {"name": "To Read"}, {"name": "Reading"}, {"name": "Summarized"}
+            ]}},
+            "URL": {"url": {}},
+            "Summary": {"rich_text": {}}
+        }
+    }).encode()
+    req = urllib.request.Request(
+        "https://api.notion.com/v1/databases",
+        data=db_payload, headers=headers, method="POST"
+    )
+    resp = urllib.request.urlopen(req)
+    db = json.loads(resp.read())
+    print(f"Created Papers database: {db['id']}", file=sys.stderr)
+    return db["id"]
 
 
 def create_page(db_id: str, properties: dict, blocks: list) -> dict:
@@ -161,7 +211,7 @@ def main():
     with open(args.blocks) as f:
         blocks = json.load(f)
     
-    db_id = args.db or find_papers_db()
+    db_id = args.db or find_or_create_papers_db()
     
     if args.update:
         update_page(args.update, blocks)
