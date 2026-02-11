@@ -154,6 +154,11 @@ python3 scripts/notion_export.py \
 
 RL, LLM, Agents, Safety, Training, Inference, Architecture, Alignment, Reasoning, Vision, Multimodal, Diffusion, Efficiency, Data, Evaluation
 
+## Critical Rules
+
+- **NEVER fabricate URLs or arXiv IDs.** Always use the URL from Phase 1 (`fetch_paper.py` output) for the Notion properties. If reviewing from a repo without a paper URL, search for it — do not guess.
+- **All metadata (title, authors, year, URL) must come from `fetch_paper.py` output or verified search results.** Never fill these from memory.
+
 ## Tips
 
 - Equations: use proper LaTeX with `\mathbb`, `\text`, `\frac`, etc. Use `\underbrace` to annotate parts.
