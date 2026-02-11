@@ -26,6 +26,31 @@ def get_api_key() -> str:
     raise RuntimeError("No Notion API key found")
 
 
+def find_papers_db() -> str:
+    """Find the Papers database by searching Notion."""
+    key = get_api_key()
+    headers = {
+        "Authorization": "Bearer " + key,
+        "Notion-Version": "2022-06-28",
+        "Content-Type": "application/json",
+    }
+    payload = json.dumps({
+        "filter": {"property": "object", "value": "database"},
+        "query": "Papers"
+    }).encode()
+    req = urllib.request.Request(
+        "https://api.notion.com/v1/search",
+        data=payload, headers=headers, method="POST"
+    )
+    resp = urllib.request.urlopen(req)
+    data = json.loads(resp.read())
+    for db in data.get("results", []):
+        title = "".join(t["plain_text"] for t in db.get("title", []))
+        if title.strip().lower() == "papers":
+            return db["id"]
+    raise RuntimeError("No 'Papers' database found in Notion workspace")
+
+
 def create_page(db_id: str, properties: dict, blocks: list) -> dict:
     key = get_api_key()
     headers = {
@@ -125,7 +150,7 @@ def update_page(page_id: str, blocks: list) -> None:
 
 def main():
     parser = argparse.ArgumentParser(description="Export paper review to Notion")
-    parser.add_argument("--db", required=True, help="Notion database ID")
+    parser.add_argument("--db", help="Notion database ID (auto-discovers 'Papers' DB if omitted)")
     parser.add_argument("--properties", required=True, help="JSON file with page properties")
     parser.add_argument("--blocks", required=True, help="JSON file with Notion blocks")
     parser.add_argument("--update", help="Update existing page ID instead of creating new")
@@ -136,11 +161,13 @@ def main():
     with open(args.blocks) as f:
         blocks = json.load(f)
     
+    db_id = args.db or find_papers_db()
+    
     if args.update:
         update_page(args.update, blocks)
         print(json.dumps({"page_id": args.update, "action": "updated"}))
     else:
-        page = create_page(args.db, properties, blocks)
+        page = create_page(db_id, properties, blocks)
         print(json.dumps({"page_id": page["id"], "url": page.get("url", ""), "action": "created"}))
 
 
